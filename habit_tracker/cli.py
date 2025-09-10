@@ -6,7 +6,7 @@ import click
 
 from . import __version__
 from .db import migrate, session
-from .models import create_habit, get_habit_by_name, list_habit
+from .models import create_habit, delete_habit, get_habit_by_name, list_habit
 
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
@@ -50,6 +50,20 @@ def list_cmd(show_all):
                 line += "(inactive)"
 
             click.echo(line)
+
+
+@cli.command("delete")
+@click.argument("habit_id", type=int)
+def delete_cmd(habit_id):
+    with session() as conn:
+        migrate(conn)
+        result = delete_habit(conn, habit_id)
+        if result:
+            click.echo(f"Deleted Habit #{habit_id}")
+            return
+        else:
+            click.echo(f"No habit #{habit_id}", err=True)
+            sys.exit(1)
 
 
 @cli.command("init-db")
