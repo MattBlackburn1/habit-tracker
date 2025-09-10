@@ -32,6 +32,21 @@ def migrate(conn: sqlite3.Connection) -> None:
     )
     c.execute(
         """
+    CREATE TABLE IF NOT EXISTS completions(
+      id INTEGER PRIMARY KEY,
+      habit_id INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+      done_on TEXT NOT NULL, -- store_as 'YYYY-MM-DD'
+      UNIQUE(habit_id, done_on)
+    );"""
+    )
+    c.execute(
+        """
+    CREATE INDEX IF NOT EXISTS idx_completions
+      ON completions(habit_id, done_on);
+        """
+    )
+    c.execute(
+        """
     CREATE TABLE IF NOT EXISTS logs(
       id INTEGER PRIMARY KEY,
       habit_id INTEGER NOT NULL,
